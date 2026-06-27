@@ -5,5 +5,4 @@ dist/
 .keys/
 reference/
 data/
-docs/
 .playwright-mcp/
