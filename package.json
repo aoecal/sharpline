@@ -1,0 +1,24 @@
+{
+  "name": "txline-sharp-agent",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Autonomous sharp-money detection agent on TxLINE de-margined World Cup odds (TxODDS x Superteam hackathon)",
+  "scripts": {
+    "probe": "ts-node src/probe.ts",
+    "subscribe": "ts-node src/subscribe-wc.ts",
+    "agent": "ts-node src/agent.ts"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.31.1",
+    "@solana/spl-token": "^0.4.14",
+    "@solana/web3.js": "^1.98.4",
+    "axios": "^1.11.0",
+    "bs58": "^6.0.0",
+    "tweetnacl": "^1.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  }
+}
