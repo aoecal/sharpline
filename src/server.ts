@@ -66,9 +66,14 @@ const HTML = `<!doctype html><html><head><meta charset="utf8"><title>SharpLine �
  table{border-collapse:collapse;width:100%;font-size:13px} td,th{padding:4px 8px;border-bottom:1px solid #1f2430;text-align:left}
  .up{color:#a6e3a1} .dn{color:#f38ba8} svg{width:100%;height:300px;background:#0d1117;border-radius:8px}
  .tag{font-size:11px;color:#7f849c;border:1px solid #2a3040;border-radius:4px;padding:1px 6px}
+ .btn{background:#a6e3a1;color:#0b0e14;border:0;border-radius:6px;padding:8px 14px;font:inherit;font-weight:700;cursor:pointer;margin:0 0 14px}
+ .cap{position:fixed;left:0;right:0;bottom:0;background:rgba(11,14,20,.95);border-top:2px solid #a6e3a1;color:#cdd6f4;padding:22px 30px;font-size:22px;line-height:1.45;display:none;z-index:9}
+ .cap b{color:#a6e3a1} .cap .step{color:#7f849c;font-size:13px;margin-bottom:6px;letter-spacing:.05em}
 </style></head><body>
  <h1>SharpLine</h1>
  <div class="sub">Autonomous sharp-money detector on TxLINE de-margined World Cup odds · TxODDS × Superteam</div>
+ <button class="btn" id="demoBtn">▶ Play guided demo (press record first)</button>
+ <div class="cap" id="cap"></div>
  <div class="card"><b>Validated</b> (controlled simulation): detection power <span class="up">95.6%</span> · false positives <span class="up">≈0.002/fixture</span> · edge/bet <span class="up">+6.7%</span> (t=7.2) · 100% direction.
  <span class="tag">live demo below = same detector on real World Cup data</span></div>
  <div class="card">
@@ -95,12 +100,28 @@ function render(a){
  let svg='<polyline fill="none" stroke="#89b4fa" stroke-width="1.5" points="'+a.points.map((pt,i)=>xs(i).toFixed(1)+','+ys(pt.p).toFixed(1)).join(' ')+'"/>';
  if(a.inplayStart>0){const x=xs(a.inplayStart);svg+='<line x1="'+x+'" y1="0" x2="'+x+'" y2="'+H+'" stroke="#585b70" stroke-dasharray="4 4"/>';}
  for(const s of a.signals){const c=s.dir===1?'#a6e3a1':'#f38ba8';const r=3+6*s.conf;svg+='<circle cx="'+xs(s.i).toFixed(1)+'" cy="'+ys(s.p).toFixed(1)+'" r="'+r.toFixed(1)+'" fill="'+c+'" fill-opacity="0.7"/>';}
- document.getElementById('chart').innerHTML=svg;
+ document.getElementById('chart').innerHTML=svg; window.__last=a;
  const inplay=a.signals.filter(s=>s.inRun).length, pre=a.signals.length-inplay;
  const top=a.signals.reduce((m,s)=>Math.max(m,s.conf),0);
  document.getElementById('kpis').innerHTML='<span class="kpi"><b>'+a.points.length+'</b> <span>price points</span></span><span class="kpi"><b>'+pre+'</b> <span>pre-match</span></span><span class="kpi"><b>'+inplay+'</b> <span>in-play</span></span><span class="kpi"><b>'+(100*top).toFixed(0)+'%</b> <span>top conf</span></span>';
  document.querySelector('#sigs tbody').innerHTML=a.signals.map((s,i)=>'<tr><td>'+(i+1)+'</td><td>'+(s.inRun?'in-play':'pre-match')+'</td><td class="'+(s.dir===1?'up':'dn')+'">'+(s.dir===1?'home ↑':'home ↓')+'</td><td>'+s.z.toFixed(1)+'</td><td>'+s.ph.toFixed(2)+'</td><td>'+(100*s.conf).toFixed(0)+'%</td><td>'+(100*s.p).toFixed(1)+'%</td></tr>').join('');
 }
+const cap=document.getElementById('cap');
+const DEMO=[
+ {t:'<div class="step">1 / 6 · THE DATA</div>TxLINE publishes <b>de-margined</b> World Cup odds. The <b>Pct</b> field is the vig-free implied probability — a clean signal with no de-vigging needed.',fx:'17588309',ms:8500},
+ {t:'<div class="step">2 / 6 · EFFICIENT PRE-MATCH</div>Before kickoff the consensus line is efficient, so the detector stays <b>silent</b>. <b>Zero false alarms</b> — same as its behaviour on a pure-noise null.',ms:8000},
+ {t:'<div class="step">3 / 6 · SHARP MOVE DETECTED</div>In-play, a goal. P(home) repriced and the agent flagged it <b>in real time, up to 94% confidence</b> — the dots on the chart, sized by confidence.',ms:8500},
+ {t:'<div class="step">4 / 6 · VALIDATED, NOT HAND-TUNED</div>Controlled backtest: detection power <b>95.6%</b>, false positives <b>≈0.002 / fixture</b>, edge <b>+6.7%</b> (t=7.2), 100% direction. The operating point is chosen by a sweep.',ms:9500},
+ {t:'<div class="step">5 / 6 · AUTONOMOUS + ON-CHAIN</div>It runs unattended and <b>anchors every decision on Solana devnet</b> (Memo) — tamper-evident after the matches resolve, mirroring how TxLINE anchors its own data.',ms:8500},
+ {t:'<div class="step">6 / 6 · SHARPLINE</div>Sharp-money detection on TxLINE World Cup odds.&nbsp; <b>github.com/aoecal/sharpline</b>',ms:7500},
+];
+async function runDemo(){
+ const btn=document.getElementById('demoBtn'); btn.style.display='none'; cap.style.display='block';
+ for(const s of DEMO){ if(s.fx){fxSel.value=s.fx;load(s.fx);} cap.innerHTML=s.t; await new Promise(r=>setTimeout(r,s.ms)); }
+ cap.innerHTML='<div class="step">DEMO COMPLETE</div>You can stop recording now.'; await new Promise(r=>setTimeout(r,4000));
+ cap.style.display='none'; btn.style.display='inline-block';
+}
+document.getElementById('demoBtn').onclick=runDemo;
 init();
 </script></body></html>`;
 
